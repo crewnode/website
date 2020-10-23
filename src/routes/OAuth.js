@@ -21,10 +21,6 @@ const oauth = new DiscordOAuth2({
 });
 
 module.exports = (app, models) => {
-  const authorizeUrl = 'https://discord.com/oauth2/authorize';
-  const tokenUrl = 'https://discord.com/api/oauth2/token';
-  const clientId = env.OAUTH_DISCORD_CLIENT_ID;
-  const clientSecret = env.OAUTH_DISCORD_CLIENT_SECRET;
   const redirectUri = 'https://crewnode.net/api/discord';
 
   /**
@@ -54,15 +50,13 @@ module.exports = (app, models) => {
     if (!req.query.code) return res.status(403).json({ error: 'INVALID_CODE' });
 
     // Get token
-    const code = req.query.code;
     oauth.tokenRequest({
-      code: code,
+      code: req.query.code,
       grantType: 'authorization_code',
       redirectUri: redirectUri
     })
       .then((r) => res.redirect(`/api/auth/${r.access_token}/${r.refresh_token}`))
       .catch((err) => res.status(400).json(err.response.data));
-
   });
 
   /**
@@ -75,11 +69,11 @@ module.exports = (app, models) => {
    */
   app.get('/api/auth/:accessToken/:refreshToken', async (req, res) => {
     if (
-      !req.params.accessToken ||
-      !req.params.refreshToken ||
-      req.params.accessToken.length != 30 ||
-      req.params.refreshToken.length != 30
+      !req.params.accessToken || !req.params.refreshToken ||
+      req.params.accessToken.length != 30 || req.params.refreshToken.length != 30
     ) return res.status(400).json({ error: 'INVALID_REQUEST' });
+
+    // TODO
     return oauth.getUser(req.params.accessToken).then((d) => {
       return res.json(d);
     });
