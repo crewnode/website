@@ -56,7 +56,7 @@ h1 {
   color: #FF0000;
 }
 
-p {
+p, div.container {
   text-align: center;
   margin: 18px;
   font-family: 'Muli', sans-serif;
@@ -67,7 +67,7 @@ p {
   text-align: center;
 }
 
-.icons i {
+.icons i, button.fa {
   color: #00091B;
   background: #fff;
   height: 15px;
@@ -81,7 +81,7 @@ p {
   position: relative;
 }
 
-.icons i:hover, .icons i:active {
+.icons i:hover, .icons i:active, button.fa:hover, button.fa:active {
   color: #fff;
   background: none;
   cursor: pointer !important;

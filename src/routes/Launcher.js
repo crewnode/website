@@ -27,4 +27,16 @@ module.exports = (app, models) => {
     });
   });
 
+  /**
+   * ---------------------------------------------------
+   * @route   /login
+   * @request GET
+   * @access  Public
+   * @limit   N/A
+   * @static
+   */
+  app.get('/launcher/login', async (req, res) => {
+    return res.sendFile("/crewnode/static/login.launcher.html");
+  });
+
 };

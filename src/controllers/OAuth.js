@@ -8,5 +8,6 @@
  */
 
 module.exports = (models) => class OAuth {
-  
+  // TODO:
+  // Implement JWT -> https://medium.com/@rustyonrampage/using-oauth-2-0-along-with-jwt-in-node-express-9e0063d911ed
 }
