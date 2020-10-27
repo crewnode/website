@@ -10,47 +10,59 @@ const Sequelize = require('sequelize');
 
 module.exports = (db) => ({
   info: {
-    name: "User"
+    name: "UserDiscord"
   },
   exec: () =>
-    db.define('user', {
+    db.define('user_discord', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
       },
-      email: {
+      uid: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      discordId: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       username: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password: {
+      discriminator: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      emailConfirmed: {
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      verifiedEmail: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      emailToken: {
-        type: Sequelize.TEXT,
+      avatar: {
+        type: Sequelize.STRING,
         allowNull: false
       },
-      ipAddress: {
-        type: Sequelize.STRING,
-        allowNull: true
+      inGuild: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
-      sessionHash: {
-        type: Sequelize.TEXT
-      },
-      provider: {
+      locale: {
         type: Sequelize.STRING,
-        allowNull: true,
-        defaultValue: null
+        allowNull: false,
+        defaultValue: "en-GB"
+      },
+      accessToken: {
+        type: Sequelize.STRING,
+      },
+      refreshToken: {
+        type: Sequelize.STRING
       }
     }, { timestamps: true })
 });

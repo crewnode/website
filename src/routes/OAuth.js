@@ -14,6 +14,7 @@ const querystring = require('querystring');
 const env = process.env;
 const DiscordOAuth2 = require('discord-oauth2');
 const crypto = require('crypto');
+const cnOAuth = require('../controllers/OAuth');
 const oauth = new DiscordOAuth2({
   clientId: env.OAUTH_DISCORD_CLIENT_ID,
   clientSecret: env.OAUTH_DISCORD_CLIENT_SECRET,
@@ -73,10 +74,14 @@ module.exports = (app, models) => {
       req.params.accessToken.length != 30 || req.params.refreshToken.length != 30
     ) return res.status(400).json({ error: 'INVALID_REQUEST' });
 
-    // TODO
-    return oauth.getUser(req.params.accessToken).then((d) => {
-      return res.json(d);
-    });
+    const userData = await oauth.getUser(req.params.accessToken);
+    const guildData = await oauth.getUserGuilds(req.params.accessToken);
+
+    // Check if user is valid
+    if ((new cnOAuth(app, models)).doesUserExist(userData, guildData, req.params)) {
+      return res.json({ user: 'USER_EXISTS' });
+    }
+    return res.json({ user: 'NO_EXIST', data: { user: userData, guild: guildData } });
   });
 
 };
