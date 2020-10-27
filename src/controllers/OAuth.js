@@ -14,73 +14,108 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 module.exports = class OAuth {
   // TODO:
   // Implement JWT -> https://medium.com/@rustyonrampage/using-oauth-2-0-along-with-jwt-in-node-express-9e0063d911ed
-  constructor(app, models) {
+  constructor(app, models, user, guilds, keys) {
     this.app = app;
     this.models = models;
+    this.user = user;
+    this.guilds = guilds;
+    this.keys = keys;
   }
 
-  doesUserExist = async (user, guilds, keys) => {
-    return await this.validateUser(user) ? true : await this.createUser(user, guilds, keys);
+  doesUserExist = async () => {
+    return await this.validateUser() ?? false;
   };
 
-  validateUser = async (user) => {
-    const authExists = await this.models.UserDiscord.findOne({
+  getJwt = async () => {
+    return jwt.sign({
+      data: {
+        discord: this.user,
+        user: await this.getUser(),
+      },
+      tokens: this.keys
+    }, process.env.WEB_SECRETKEY ?? "mySecretKey", { expiresIn: '24h' });
+  };
+
+  getUser = async () => {
+    return await this.models.User.findOne({
       where: {
-        discordId: user.id,
-        email: user.email,
+        id: this.dbUser.uid,
       }
     });
-    if (!authExists) return false;
+  };
 
-    // Update auth with updated information
-    console.log(`Updating ${user.username} (${user.id})`);
-    await this.models.UserDiscord.update(
+  validateUser = async () => {
+    // The user exists, so we should update them with up-to-date information
+    const userAuth = await this.models.UserDiscord.findOne({
+      where: {
+        discordId: this.user.id,
+        email: this.user.email,
+      }
+    });
+    if (!userAuth) return null;
+    this.dbUser = userAuth;
+
+    // Update our user data
+    await this.models.User.update(
       {
-        username: user.username,
-        discriminator: user.discriminator,
-        avatar: user.avatar,
-        locale: user.locale
+        ipAddress: this.keys.clientIp
       },
       {
-        where: { discordId: user.id, email: user.email }
+        where: { id: userAuth.uid }
+      });
+    await this.models.UserDiscord.update(
+      {
+        username: this.user.username,
+        discriminator: this.user.discriminator,
+        avatar: this.user.avatar,
+        locale: this.user.locale
+      },
+      {
+        where: { discordId: this.user.id, email: this.user.email }
       });
 
+    // Return TRUE for update
+    console.log(`Updating ${this.user.username} (${this.user.id})`);
     return true;
   };
 
-  createUser = async (user, guilds, keys) => {
-    console.log('create user');
-
+  createUser = async () => {
     // Check if the user is in the CrewNode Guild
-    const guildId = "765864036440342558";
-    const crewNodeGuild = guilds.filter((v, i) => v.id === guildId);
+    const guildId = "765864036440342558"; // process.env.DISCORD_GUILD_ID
+    const crewNodeGuild = this.guilds.filter((v, i) => v.id === guildId);
     const inGuild = crewNodeGuild.length > 0;
+
+    // If they're not in the guild, join it!
+    if (!inGuild) {
+      console.log('user not in guild, joining...');
+    }
 
     // Create the user
     const newUser = await this.models.User.create({
-      email: user.email,
-      username: user.username,
+      email: this.user.email,
+      username: this.user.username,
       password: '', // TODO: What do we do here?
-      emailConfirmed: user.verified,
+      emailConfirmed: this.user.verified,
       emailToken: '', // TODO: Generate UUIDv4 Token
-      ipAddress: '', // TODO: Get User IP
+      ipAddress: this.keys.clientIp,
       sessionHash: '', // TODO: Generate Session Hash
       provider: 'discord',
     });
     const discordUser = await this.models.UserDiscord.create({
       uid: newUser.id,
-      discordId: user.id,
-      username: user.username,
-      discriminator: user.discriminator,
-      email: user.email,
-      verifiedEmail: user.verified,
-      avatar: user.avatar,
+      discordId: this.user.id,
+      username: this.user.username,
+      discriminator: this.user.discriminator,
+      email: this.user.email,
+      verifiedEmail: this.user.verified,
+      avatar: this.user.avatar,
       inGuild: inGuild,
-      locale: user.locale,
-      accessToken: keys.accessToken,
-      refreshToken: keys.refreshToken
+      locale: this.user.locale,
+      accessToken: this.keys.accessToken,
+      refreshToken: this.keys.refreshToken
     });
     
+    // Return TRUE for success
     return true;
   };
 

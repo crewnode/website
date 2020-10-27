@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>CrewNode</title>
+    <link rel="stylesheet" media="all" href="/assets/crewnode.css?v0.0.6c" />
+    <link rel="stylesheet" media="all" href="//fonts.googleapis.com/css?family=Poppins:700,400" />
+    <link rel="stylesheet" media="all" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="icon" type="image/png" href="/assets/crewnode-logo.real.png" />
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+
+    <style type="text/css">
+    .wrapper > img { display: none; }
+    /* h1 { display: none; } */
+
+    input {
+      width: calc(100% - 1.85em);
+      border-radius: 3px;
+      padding: 0.75em;
+      text-align: center;
+    }
+
+    #copy-text {
+      font-size: 12px;
+      font-style: italic;
+      color: #666;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <img draggable="false" src="/assets/crewnode-logo.png?v0.0.2" />
+      <h1>crew<span class="red">node</span></span></h1>
+      <h3>You are logged in as <strong>name</strong></h3>
+      <div class="container">
+        <p>
+          Please enter the below API Key into the CrewNode Launcher.
+        </p>
+        <input type="text" id="key" readonly value="{{ apiKey }}" onclick="forceCopy()" />
+        <p id="copy-text" style="display: none;">Copied to clipboard!</p>
+      </div>
+    </div>
+    <script type="text/javascript">
+      function forceCopy() {
+        const key = document.getElementById("key");
+        key.select();
+        key.setSelectionRange(0, key.value.length);
+        document.execCommand("copy");
+
+        const copyText = document.getElementById("copy-text");
+        copyText.style.display = 'block';
+        setTimeout(function() {
+          copyText.style.display = 'none';
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>

@@ -12,6 +12,7 @@ const colors = require('colors');
 const axios = require('axios');
 const querystring = require('querystring');
 const env = process.env;
+const jwt = require('jsonwebtoken')
 const DiscordOAuth2 = require('discord-oauth2');
 const crypto = require('crypto');
 const cnOAuth = require('../controllers/OAuth');
@@ -78,10 +79,29 @@ module.exports = (app, models) => {
     const guildData = await oauth.getUserGuilds(req.params.accessToken);
 
     // Check if user is valid
-    if ((new cnOAuth(app, models)).doesUserExist(userData, guildData, req.params)) {
-      return res.json({ user: 'USER_EXISTS' });
+    let auth = new cnOAuth(app, models, userData, guildData, {...req.params, clientIp: req.clientIp});
+    let userExists = false;
+    if (await auth.doesUserExist()) {
+      // Attempt to log this user in
+      userExists = true;
     }
-    return res.json({ user: 'NO_EXIST', data: { user: userData, guild: guildData } });
+    else {
+      // Register a new user
+      if (await auth.createUser()) {
+        userExists = true;
+      }
+    }
+
+    // Set our JWT cookie if our user exists
+    if (userExists) {
+      res.cookie('jwt', await auth.getJwt());
+    }
+
+    return res.json(
+      userExists
+        ? { user: 'USER_EXISTS' }
+        : { user: 'NO_EXIST' }
+    );
   });
 
 };

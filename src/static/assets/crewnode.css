@@ -34,6 +34,7 @@ body {
   -webkit-transform: translate(-50%, -50%);
   animation: fadeIn 1000ms ease;
   -webkit-animation: fadeIn 1000ms ease;
+  text-align: center;
 }
 
 .wrapper img {
@@ -50,6 +51,19 @@ h1 {
   line-height: 1;
   font-weight: 700;
   margin-top: 0;
+}
+
+h3 {
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 0;
+  line-height: 1;
+  margin-top: 0.25em;
+  color: #666;
+}
+
+h3 > strong {
+  color: #AAA;
 }
 
 .red {
