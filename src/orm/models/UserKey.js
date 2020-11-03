@@ -21,11 +21,11 @@ module.exports = (db) => ({
       },
       uid: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       key: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.STRING,
+        allowNull: false
       }
-    }, { timestamps: false })
+    }, { timestamps: true })
 });

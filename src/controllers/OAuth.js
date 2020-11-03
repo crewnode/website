@@ -14,12 +14,13 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 module.exports = class OAuth {
   // TODO:
   // Implement JWT -> https://medium.com/@rustyonrampage/using-oauth-2-0-along-with-jwt-in-node-express-9e0063d911ed
-  constructor(app, models, user, guilds, keys) {
+  constructor(app, models, user = null, guilds = null, keys = null) {
     this.app = app;
     this.models = models;
     this.user = user;
     this.guilds = guilds;
     this.keys = keys;
+    this.dbUser = null;
   }
 
   doesUserExist = async () => {
@@ -35,6 +36,36 @@ module.exports = class OAuth {
       tokens: this.keys
     }, process.env.WEB_SECRETKEY ?? "mySecretKey", { expiresIn: '24h' });
   };
+
+  loadUser = async (userKey) => {
+    let key = await this.models.UserKey.findOne({
+      where: {
+        key: userKey
+      }
+    });
+    
+    if (key && key.uid != null) {
+      let cacheUser;
+      this.dbUser = {
+        discord: (cacheUser = await this.models.UserDiscord.findOne({
+          where: {
+            id: key.uid
+          },
+          limit: 1,
+          order: [['createdAt', 'DESC']]
+        })),
+        cn: await this.models.User.findOne({
+          where: {
+            id: cacheUser.uid
+          },
+          limit: 1
+        })
+      };
+      return this.dbUser;
+    }
+
+    return false;
+  }
 
   getUser = async () => {
     return await this.models.User.findOne({
