@@ -113,6 +113,7 @@ module.exports = (app, models) => {
       if (auth.dbUser.id) {
         await models.UserKey.update({ uid: auth.dbUser.id }, { where: { key: userKey } });
       }
+      return res.status(200).redirect('/launcher/login/success');
     }
 
     return res.json(

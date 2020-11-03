@@ -46,6 +46,18 @@ module.exports = (app, models) => {
 
   /**
    * ---------------------------------------------------
+   * @route   /launcher/login/success
+   * @request GET
+   * @access  Public
+   * @limit   N/A
+   * @static
+   */
+  app.get('/launcher/login/success', async (req, res) => {
+    return res.render('/crewnode/static/success.launcher.twig');
+  });
+
+  /**
+   * ---------------------------------------------------
    * @route   /launcher/keys
    * @request GET
    * @access  Public
