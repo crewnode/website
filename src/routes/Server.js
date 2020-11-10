@@ -86,7 +86,7 @@ module.exports = (app, models) => {
           }
 
           // Validate Game Code
-          if (gameCode.length != 4 || gameCode.length != 6) {
+          if (gameCode.length != 4 && gameCode.length != 6) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAMECODE_' + v.type.toUpperCase()});
             continue;
           }
@@ -108,7 +108,7 @@ module.exports = (app, models) => {
           }
 
           // Validate Game Code
-          if (gameCode.length != 4 || gameCode.length != 6) {
+          if (gameCode.length != 4 && gameCode.length != 6) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAMECODE_' + v.type.toUpperCase()});
             continue;
           }
@@ -131,7 +131,7 @@ module.exports = (app, models) => {
           }
 
           // Validate Game Code
-          if (gameCode.length != 4 || gameCode.length != 6) {
+          if (gameCode.length != 4 && gameCode.length != 6) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAMECODE_' + v.type.toUpperCase()});
             continue;
           }
@@ -168,7 +168,7 @@ module.exports = (app, models) => {
           }
 
           // Validate Game Code
-          if (gameCode.length != 4 || gameCode.length != 6) {
+          if (gameCode.length != 4 && gameCode.length != 6) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAMECODE_' + v.type.toUpperCase()});
             continue;
           }
@@ -208,7 +208,7 @@ module.exports = (app, models) => {
           }
 
           // Validate Game Code
-          if (gameCode.length != 4 || gameCode.length != 6) {
+          if (gameCode.length != 4 && gameCode.length != 6) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAMECODE_' + v.type.toUpperCase()});
             continue;
           }
