@@ -37,8 +37,9 @@ module.exports = (app, models) => {
 
     // Check type
     const data = req.body;
-    console.log(req.body);
+    console.log(data);
     if (!('packets' in data)) {
+      console.log('invalid packet');
       return res.status(404).json({ error: 'INVALID_PACKET' });
     }
 
@@ -52,9 +53,10 @@ module.exports = (app, models) => {
     // TODO: Update ORM models to respect instance id
 
     for (const v of data.packets) {
+      console.log(v.type, v.data);
       switch (v.type.toLowerCase()) {
         // Game Handlers
-        case 'new_game': {
+        case 'gamenew': {
           const { creator, gameCode, gameMode, gameState } = v.data;
           if (!creator || !gameCode || !gameMode || !gameState) {
             resp['dropped'].push({...v.data, error: 'INVALID_DATA_' + v.type.toUpperCase()});
@@ -78,7 +80,12 @@ module.exports = (app, models) => {
         }
         break;
 
-        case 'update_game': {
+        case 'gamesethost': {
+          /* todo */
+        }
+        break;
+
+        case 'gameupdate': {
           const { creator, gameCode, gameMode, gameState } = v.data;
           if (!creator || !gameCode || !gameMode || !gameState) {
             resp['dropped'].push({...v.data, error: 'INVALID_DATA_' + v.type.toUpperCase()});
@@ -100,7 +107,7 @@ module.exports = (app, models) => {
         }
         break;
         
-        case 'destroy_game': {
+        case 'gamedestroy': {
           const { creator, gameCode } = v.data;
           if (!creator || !gameCode) {
             resp['dropped'].push({...v.data, error: 'INVALID_DATA_' + v.type.toUpperCase()});
@@ -123,9 +130,9 @@ module.exports = (app, models) => {
         break;
   
         // Player Handlers
-        case 'add_player': {
+        case 'playeradd': {
           const { gameCode, playerName, playerColor, playerSkin, playerHat, playerPet, playerPosX, playerPosY, ipAddress, discordUid } = v.data;
-          if (!gameCode || !playerName || !playerColor || !playerSkin || !playerHat || !playerPet || !playerPosX || !playerPosY || !ipAddress) {
+          if (!gameCode || !playerName || playerColor == null || playerSkin == null || playerHat == null || playerPet == null || !playerPosX || !playerPosY || !ipAddress) {
             resp['dropped'].push({...v.data, error: 'INVALID_DATA_' + v.type.toUpperCase()});
             continue;
           }
@@ -137,7 +144,7 @@ module.exports = (app, models) => {
           }
 
           // Find the game this player is in
-          let game = models.Game.findOne({ where: { gameCode: gameCode } });
+          let game = await models.Game.findOne({ where: { gameCode: gameCode } });
           if (!game) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAME_' + v.type.toUpperCase()});
             continue;
@@ -160,9 +167,9 @@ module.exports = (app, models) => {
         }
         break;
 
-        case 'update_player': {
+        case 'playerupdate': {
           const { gameCode, playerName, playerColor, playerSkin, playerHat, playerPet, playerPosX, playerPosY, ipAddress, discordUid } = v.data;
-          if (!gameCode || !playerName || !playerColor || !playerSkin || !playerHat || !playerPet || !playerPosX || !playerPosY || !ipAddress) {
+          if (!gameCode || !playerName || playerColor == null || playerSkin == null || playerHat == null || playerPet == null || !playerPosX || !playerPosY || !ipAddress) {
             resp['dropped'].push({...v.data, error: 'INVALID_DATA_' + v.type.toUpperCase()});
             continue;
           }
@@ -174,7 +181,7 @@ module.exports = (app, models) => {
           }
 
           // Find the game this player is in
-          let game = models.Game.findOne({ where: { gameCode: gameCode } });
+          let game = await models.Game.findOne({ where: { gameCode: gameCode } });
           if (!game) {
             resp['dropped'].push({...v.data, error: 'INVALID_GAME_' + v.type.toUpperCase()});
             continue;
@@ -200,7 +207,7 @@ module.exports = (app, models) => {
         }
         break;
 
-        case 'remove_player':  {
+        case 'playerremove':  {
           const { gameCode, playerName, ipAddress } = v.data;
           if (!gameCode || !playerName || !ipAddress) {
             resp['dropped'].push({...v.data, error: 'INVALID_DATA_' + v.type.toUpperCase()});
@@ -213,9 +220,16 @@ module.exports = (app, models) => {
             continue;
           }
 
+          // Find the game this player is in
+          let game = await models.Game.findOne({ where: { gameCode: gameCode } });
+          if (!game) {
+            resp['dropped'].push({...v.data, error: 'INVALID_GAME_' + v.type.toUpperCase()});
+            continue;
+          }
+
           // Remove the player
-          await models.Game.destroy(
-            { where: { gameCode: gameCode, playerName: playerName, ipAddress: ipAddress },
+          await models.GamePlayer.destroy(
+            { where: { gameId: game.id, playerName: playerName, ipAddress: ipAddress },
             limit: 1
           });
           resp['processed'].push(v.data);
@@ -223,7 +237,9 @@ module.exports = (app, models) => {
         break;
         
         // Fallback
-        default: resp = { error: 'INVALID_TYPE' }; break;
+        default:
+          resp = { error: 'INVALID_TYPE',  };
+          break;
       }
     }
 

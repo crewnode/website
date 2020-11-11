@@ -1,0 +1,52 @@
+<html>
+  <head>
+  </head>
+  <body>
+
+
+    <script type="text/javascript">
+    function connect() {
+      var serverUrl;
+      var scheme = "ws";
+
+      if (document.location.protocol === "https:") {
+        scheme += "s";
+      }
+
+      serverUrl = scheme + "://" + document.location.hostname + ":22023";
+
+      connection = new WebSocket("ws://skeld.net:22023");
+      console.log("***CREATED WEBSOCKET");
+
+      connection.onopen = function (evt) {
+        console.log("***ONOPEN");
+        document.getElementById("status").innerHTML = "";
+        var auth = {
+          Text: "yes",
+          Type: "0",
+          Date: Date.now()
+        };
+        connection.send(JSON.stringify(auth));
+      };
+      console.log("***CREATED ONOPEN");
+
+      connection.onerror = function (event) {
+        console.error("WebSocket error observed: ", event);
+      };
+      console.log("***CREATED ONERROR");
+
+      connection.onmessage = function (evt) {
+        console.log("***ONMESSAGE");
+        var text = "";
+        var msg = JSON.parse(evt.data);
+        console.log("Message received: ");
+        console.dir(msg);
+        var time = new Date(msg.Date);
+        var timeStr = time.toLocaleTimeString();
+        console.log(text);
+      };
+      console.log("***CREATED ONMESSAGE");
+    }
+    </script>
+  </body>
+</html>
