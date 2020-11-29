@@ -15,6 +15,10 @@ module.exports = (db) => ({
         type: Sequelize.STRING,
         allowNull: false
       },
+      managerId: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       sessionId: {
         type: Sequelize.STRING,
         allowNull: false

@@ -18,6 +18,10 @@ module.exports = (db) => ({
       managerId: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      apiKey: {
+        type: Sequelize.STRING,
+        allowNull: false
       }
     }, { timestamps: true })
 });
