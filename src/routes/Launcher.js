@@ -21,11 +21,8 @@ module.exports = (app, models) => {
    * @access  Public
    * @limit   10 every 15 minutes
    */
-  app.get('/api/launcher/version', rateLimit({ windowMs: (15 * 60) * 1000, max: 10 }), async (req, res) => {
-    return res.json({
-      // TODO: Get from database
-      version: "0.0.0-alpha.1"
-    });
+  app.get('/api/launcher/version', async (req, res) => {
+    return res.send('0.0.1-alpha.2');
   });
 
   /**
