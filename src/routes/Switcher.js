@@ -24,33 +24,25 @@ module.exports = (app, models) => {
     // Check token
     const token = req.headers['authorization'];
     if (!token.includes('CrewNode ')) {
-      console.log('token:', token);
       return res.send('ACCESS_DENIED');
     }
 
     // Check Bearer
     const bearer = token.replace('CrewNode ', '');
-    console.log('bearer: "' + bearer + '"');
     await models.ListingManager.findOne({
       where: { apiKey: bearer }
     })
       .then(async (manager) => {
-        console.log(manager);
         // Create new session
-        try {
-          const session = await models.ListingSession.create({
-            listingId: manager.listingId,
-            sessionId: uuidv4(),
-            managerId: manager.id
-          });
-          console.log('created session:', session);
+        const session = await models.ListingSession.create({
+          listingId: manager.listingId,
+          sessionId: uuidv4(),
+          managerId: manager.id
+        });
 
-          return res.json({
-            sessionId: session.sessionId,
-          });
-        } catch (e) {
-          console.error(e);
-        }
+        return res.json({
+          sessionId: session.sessionId,
+        });
       })
       .catch((e) => {
         return res.send('ACCESS_DENIED');
