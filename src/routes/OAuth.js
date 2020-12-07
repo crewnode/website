@@ -16,6 +16,7 @@ const jwt = require('jsonwebtoken')
 const DiscordOAuth2 = require('discord-oauth2');
 const crypto = require('crypto');
 const cnOAuth = require('../controllers/OAuth');
+const { v4: uuidv4 } = require('uuid');
 const oauth = new DiscordOAuth2({
   clientId: env.OAUTH_DISCORD_CLIENT_ID,
   clientSecret: env.OAUTH_DISCORD_CLIENT_SECRET,
@@ -37,8 +38,11 @@ module.exports = (app, models) => {
     if (!req.params.challenge) return res.status(403).json({ error: 'INVALID_CHALLENGE' });
 
     // Generate a state to use on return, used to identify the launcher and user
-    console.log('challenge:', req.params.challenge);
-    let state = (crypto.createHash('sha256').update(req.params.challenge + "cn").digest('base64')).replace(/\W/g, '');
+    let state = (crypto.createHash('sha256').update((req.params.challenge === 'web' ? uuidv4() : req.params.challenge + "cn")).digest('base64')).replace(/\W/g, '');
+    if (req.params.challenge === 'web') {
+      state += '_web';
+    }
+
     await models.UserKey.create({
       uid: null,
       key: state
@@ -113,7 +117,10 @@ module.exports = (app, models) => {
       if (auth.dbUser.id) {
         await models.UserKey.update({ uid: auth.dbUser.id }, { where: { key: userKey } });
       }
-      return res.status(200).redirect('/launcher/login/success');
+      
+      return userKey.endsWith('_web')
+            ? res.status(200).redirect('/dashboard')
+            : res.status(200).redirect('/launcher/login/success');
     }
 
     return res.json(

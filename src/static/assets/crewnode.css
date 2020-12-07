@@ -95,11 +95,31 @@ p, div.container {
   position: relative;
 }
 
-.icons i:hover, .icons i:active, button.fa:hover, button.fa:active {
+.icons i:hover, .icons i:active /*, button.fa:hover, button.fa:active*/ {
   color: #fff;
   background: none;
   cursor: pointer !important;
   transform: scale(1.2);
   -webkit-transform: scale(1.2);
+  text-decoration: none;
+}
+
+a.login {
+  top: 2em;
+  color: #00091B;
+  background: #fff;
+  padding: 15px 30px;
+  border-radius: 3px;
+  border: 2px solid #fff;
+  transition: all 200ms ease;
+  text-decoration: none;
+  position: relative;
+  font-size: 12px;
+}
+
+a.login:hover, a.login:active {
+  color: #fff;
+  background: none;
+  cursor: pointer !important;
   text-decoration: none;
 }

@@ -23,6 +23,11 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(cookieParser());
 
+// Disable cache on dev
+if (process.env.ENVIRONMENT === 'dev') {
+  app.set('etag', false);
+}
+
 // Engine for static files
 const twig = require('twig');
 app.set("twig options", {
@@ -43,19 +48,20 @@ const JwtStrategy = require('passport-jwt').Strategy;
 let opts = {
   jwtFromRequest: function(req) {
     let token = null;
-    console.log('get request');
     if (req && req.cookies && req.cookies['jwt']) {
       token = req.cookies['jwt'];
     }
-    console.log('token:', req.cookies['jwt']);
     return token;
   },
   secretOrKey: process.env.WEB_SECRETKEY ?? "mySecretKey"
 };
 app.use(passport.initialize());
 passport.use(new JwtStrategy(opts, (payload, done) => {
-  console.log('Check JWT session', payload);
-  done(null, false);
+  // TODO: Return payload
+  // TODO: Validate user exists
+  // TODO: Validate session hasn't expired
+  // TODO: Refresh token with Discord to get updates (if expired)
+  done(null, payload.data.user);
 }));
 
 // Setup routes

@@ -15,47 +15,55 @@ module.exports = (app, models) => {
 
   /**
    * ---------------------------------------------------
-   * @route   /api/launcher/version
-   * @desc    Get the version of the launcher
+   * @route   /home
+   * @desc    The homepage
    * @request GET
    * @access  Public
-   * @limit   10 every 15 minutes
    */
-  app.get('/api/launcher/version', async (req, res) => {
-    return res.send('0.0.1-alpha.2');
+  app.get('/home', async (req, res) => {
+    return res.render('/crewnode/static/site/index.twig');
   });
 
   /**
    * ---------------------------------------------------
-   * @route   /launcher/login/success
+   * @route   /login
+   * @desc    Login page
    * @request GET
    * @access  Public
-   * @limit   N/A
-   * @static
    */
-  app.get('/launcher/login/success', async (req, res) => {
-    return res.render('/crewnode/static/launcher/success.twig');
+  app.get('/login', async (req, res) => {
+    return res.render('/crewnode/static/site/login.twig');
   });
 
   /**
    * ---------------------------------------------------
-   * @route   /launcher/keys
+   * @route   /dashboard
+   * @desc    Dashboard
    * @request GET
    * @access  Public
-   * @limit   N/A
-   * @static
    */
-  app.get('/launcher/keys', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  app.get('/dashboard', passport.authenticate('jwt', { session: false }), async (req, res) => {
     // Get the user key
     if (req.user) {
-      return res.render('/crewnode/static/launcher/key.twig', {
-        apiKey: 'testytest',
+      return res.render('/crewnode/static/site/dashboard.twig', {
+        user: req.user,
       });
     }
 
     return res.status(403).render('/crewnode/static/error.twig', {
       errorMessage: 'not authorised',
     });
+  });
+
+  /**
+   * ---------------------------------------------------
+   * @route   /servers
+   * @desc    Get a list of servers
+   * @request GET
+   * @access  Public
+   */
+  app.get('/servers', async (req, res) => {
+    return res.send('0.0.1-alpha.2');
   });
 
 };
